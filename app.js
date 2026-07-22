@@ -164,7 +164,7 @@ const initialData = [
     need: "ChatGPT 사용 제한을 우회하는 것이 아니라 회사 보안정책을 준수하면서 교육 진행·안내·평가를 자동화할 수 있는 대안 확보가 핵심 니즈",
     psychology: "AI 활용 의지는 있으나 내부 규정 때문에 실행이 막혀 답답함을 느끼며, 동시에 보안 사고를 피하려는 제약 인식과 신중함이 큰 상태로 추론됨",
     expectation: "기업용·폐쇄형·온프레미스 AI 대안 비교, 민감정보 비식별화 방법, 허용 가능한 자동화 예시, 내부 승인용 보안 체크리스트",
-    reason: "사내 사용 제한을 가장 큰 장애물로 제시했고 강사에게 보안형 대체 AI를 직접 질문함",
+    reason: "사내 사용 제한을 가장 큰 장애물로 제시했고 강사에게 보안형 대체 AI를질문함",
     confidence: "높음",
     date: "2026-07-22"
   }
@@ -181,7 +181,6 @@ let state = {
 let chartLevelInstance = null;
 let chartBarrierInstance = null;
 
-// Run immediately as soon as DOM is ready for zero latency
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
 } else {
@@ -194,10 +193,9 @@ function initApp() {
   renderCards();
   setupEventListeners();
   
-  // Render charts instantly with zero animation delay
+  // Render charts instantly for mobile & desktop
   renderCharts();
   
-  // Asynchronous CSV check without blocking initial render
   setTimeout(tryFetchCSV, 100);
 }
 
@@ -213,7 +211,7 @@ async function tryFetchCSV() {
       }
     }
   } catch (e) {
-    // Silent fallback
+    // Fallback
   }
 }
 
@@ -439,11 +437,12 @@ function renderLevelChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      animation: false, // Instant zero-latency rendering
+      resizeDelay: 0,
+      animation: false,
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { font: { family: 'Pretendard', size: 12 } }
+          labels: { font: { family: 'Pretendard', size: 11 } }
         }
       }
     }
@@ -457,7 +456,7 @@ function renderBarrierChart() {
   const barrierCounts = {};
   state.filteredData.forEach(d => {
     let key = '기타/복합';
-    if (d.barrier.includes('보안') || d.barrier.includes('유출')) key = '사내 보안/정보유출 우려';
+    if (d.barrier.includes('보안') || d.barrier.includes('유출')) key = '사내 보안/정보유출';
     else if (d.barrier.includes('기초역량') || d.barrier.includes('역량 부족')) key = 'AI 기초역량 부족';
     else if (d.barrier.includes('기법') || d.barrier.includes('도입방법')) key = '교육기법/도입방법 부족';
     else if (d.barrier.includes('거부감')) key = '학습자 거부감';
@@ -485,13 +484,17 @@ function renderBarrierChart() {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      animation: false, // Instant zero-latency rendering
+      resizeDelay: 0,
+      animation: false,
       plugins: {
         legend: { display: false }
       },
       scales: {
         x: {
           ticks: { stepSize: 1, precision: 0 }
+        },
+        y: {
+          ticks: { font: { family: 'Pretendard', size: 11 } }
         }
       }
     }

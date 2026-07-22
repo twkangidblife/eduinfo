@@ -666,6 +666,21 @@ footer a:hover {
     grid-template-columns: 1fr;
   }
   
+  .charts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .chart-card {
+    padding: 16px 18px;
+  }
+
+  .chart-container {
+    height: 190px !important;
+    contain: layout size;
+    transform: translateZ(0);
+  }
+
   .filter-row {
     flex-direction: column;
     align-items: stretch;
