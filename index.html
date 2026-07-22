@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR AI 교육 참가자 니즈 분석 대시보드</title>
+  <meta name="description" content="HR AI 교육 참가자들의 업종별 니즈, 장애물, 심리 상태 및 핵심 요구사항 분석 대시보드">
+  <link rel="stylesheet" href="./styles.css">
+  <script>
+    // Ensures compatibility whether index.html or main.html is requested directly
+    if (window.location.pathname.endsWith('index.html')) {
+      // Keep rendered seamlessly
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <div class="container header-inner">
+      <div class="logo-group">
+        <div class="logo-icon">⚡</div>
+        <div class="title-area">
+          <h1>HR AI 교육 참가자 니즈 분석</h1>
+          <p>참가 기업별 HRD/인사 담당자의 핵심 장애물, 심리상태 및 요구사항 인사이트</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="badge-date">
+          <span>📅 기준일: 2026-07-22</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Key Statistics Summary Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">총 참가 기업</span>
+          <span class="stat-icon">🏢</span>
+        </div>
+        <div class="stat-value" id="stat-total">7명</div>
+        <div class="stat-desc">대기업·중견기업·공기업 실무자</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">조직 도입 단계</span>
+          <span class="stat-icon">🚀</span>
+        </div>
+        <div class="stat-value" id="stat-org">2개사</div>
+        <div class="stat-desc">동원산업, 도루코 (에이전트/보안 BP)</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">개인 활용 단계</span>
+          <span class="stat-icon">💡</span>
+        </div>
+        <div class="stat-value" id="stat-ind">5개사</div>
+        <div class="stat-desc">기초역량 강화 및 교육기법 탐색</div>
+      </div>
+    </div>
+
+    <!-- Interactive Control Panel (Search & Filter) -->
+    <div class="control-panel">
+      <div class="filter-row">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="회사명, 성명, 부서, 니즈 키워드 검색...">
+        </div>
+
+        <div class="filter-group">
+          <select id="filter-level" class="filter-select">
+            <option value="ALL">전체 AI 활용수준</option>
+            <option value="개인활용">개인활용</option>
+            <option value="조직도입">조직도입</option>
+          </select>
+
+          <select id="filter-industry" class="filter-select">
+            <option value="ALL">전체 업종</option>
+          </select>
+
+          <button id="btn-reset" class="btn-reset">
+            <span>🔄</span> 필터 초기화
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Cards Container -->
+    <main>
+      <div class="section-title">
+        <span>참가자 니즈 분석 리스트</span>
+        <span class="count-badge" id="result-count">7건</span>
+      </div>
+
+      <div class="cards-grid" id="cards-grid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 2026 HR AI Needs Analysis Dashboard. GitHub Pages Ready.</p>
+    </footer>
+  </div>
+
+  <!-- Detail Analysis Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div id="modal-body">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
