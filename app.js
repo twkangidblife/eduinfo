@@ -178,6 +178,9 @@ let state = {
   industryFilter: 'ALL'
 };
 
+let chartLevelInstance = null;
+let chartBarrierInstance = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
@@ -186,11 +189,12 @@ function initApp() {
   renderStats();
   populateFilters();
   renderCards();
+  renderCharts();
   setupEventListeners();
   tryFetchCSV();
 }
 
-// Attempt to fetch local CSV if served via http/https server
+// Attempt to fetch local CSV if served via server
 async function tryFetchCSV() {
   try {
     const response = await fetch('./HR_AI_교육참가자_니즈분석_20260722.csv');
@@ -203,7 +207,7 @@ async function tryFetchCSV() {
       }
     }
   } catch (e) {
-    console.log('Using embedded static fallback data for CORS / file:// compatibility.');
+    console.log('Using embedded static fallback data.');
   }
 }
 
@@ -278,7 +282,6 @@ function populateFilters() {
   const industrySelect = document.getElementById('filter-industry');
   const industries = [...new Set(state.data.map(d => d.industry))];
   
-  // Clear existing options except default
   industrySelect.innerHTML = '<option value="ALL">전체 업종</option>';
   industries.forEach(ind => {
     const opt = document.createElement('option');
@@ -336,6 +339,7 @@ function applyFilters() {
   });
 
   renderCards();
+  renderCharts();
 }
 
 function renderCards() {
@@ -363,7 +367,7 @@ function renderCards() {
         <div>
           <div class="card-top">
             <div class="company-info">
-              <h3>${item.company} <span style="font-weight: 400; font-size: 13px; color: var(--text-muted);">${item.industry}</span></h3>
+              <h3>${item.company} <span style="font-weight: 500; font-size: 13px; color: var(--text-muted);">${item.industry}</span></h3>
               <p>${item.department} · ${item.name} ${item.position} (경력 ${item.experience})</p>
             </div>
             <span class="level-badge ${levelBadgeClass}">${item.level}</span>
@@ -400,6 +404,92 @@ function renderCards() {
   }).join('');
 }
 
+function renderCharts() {
+  if (typeof Chart === 'undefined') return;
+  renderLevelChart();
+  renderBarrierChart();
+}
+
+function renderLevelChart() {
+  const ctx = document.getElementById('chart-level');
+  if (!ctx) return;
+
+  const orgCount = state.filteredData.filter(d => d.level === '조직도입').length;
+  const indCount = state.filteredData.filter(d => d.level === '개인활용').length;
+
+  if (chartLevelInstance) chartLevelInstance.destroy();
+
+  chartLevelInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['개인활용', '조직도입'],
+      datasets: [{
+        data: [indCount, orgCount],
+        backgroundColor: ['#3b82f6', '#2d8b49'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { family: 'Pretendard', size: 12 } }
+        }
+      }
+    }
+  });
+}
+
+function renderBarrierChart() {
+  const ctx = document.getElementById('chart-barrier');
+  if (!ctx) return;
+
+  const barrierCounts = {};
+  state.filteredData.forEach(d => {
+    let key = '기타/복합';
+    if (d.barrier.includes('보안') || d.barrier.includes('유출')) key = '사내 보안/정보유출 우려';
+    else if (d.barrier.includes('기초역량') || d.barrier.includes('역량 부족')) key = 'AI 기초역량 부족';
+    else if (d.barrier.includes('기법') || d.barrier.includes('도입방법')) key = '교육기법/도입방법 부족';
+    else if (d.barrier.includes('거부감')) key = '학습자 거부감';
+
+    barrierCounts[key] = (barrierCounts[key] || 0) + 1;
+  });
+
+  const labels = Object.keys(barrierCounts);
+  const data = Object.values(barrierCounts);
+
+  if (chartBarrierInstance) chartBarrierInstance.destroy();
+
+  chartBarrierInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '인원 수',
+        data: data,
+        backgroundColor: '#e66a2c',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: { stepSize: 1, precision: 0 }
+        }
+      }
+    }
+  });
+}
+
 function openModal(id) {
   const item = state.data.find(d => d.id === id);
   if (!item) return;
@@ -433,7 +523,7 @@ function openModal(id) {
           <p style="margin-bottom: 6px;"><strong>[AI 활용 수준]</strong> ${item.level}</p>
           <p style="margin-bottom: 6px;"><strong>[장애요인]</strong> ${item.barrier}</p>
           <p style="margin-bottom: 6px;"><strong>[학습희망]</strong> ${item.topic}</p>
-          ${item.question ? `<p style="margin-top: 8px; color: #f43f5e;"><strong>[강사 질의사항]</strong> ${item.question}</p>` : ''}
+          ${item.question ? `<p style="margin-top: 8px; color: #e66a2c;"><strong>[강사 질의사항]</strong> ${item.question}</p>` : ''}
         </div>
       </div>
 
@@ -442,7 +532,7 @@ function openModal(id) {
         <div class="modal-section-body">
           <p style="margin-bottom: 4px;"><strong>업종:</strong> ${item.industry}</p>
           <p style="margin-bottom: 6px;"><strong>주요사업:</strong> ${item.business}</p>
-          ${item.source ? `<a href="${item.source}" target="_blank" style="color: var(--accent-indigo); text-decoration: underline; font-size: 13px;">🔗 회사 웹사이트 바로가기</a>` : ''}
+          ${item.source ? `<a href="${item.source}" target="_blank" style="color: var(--db-green); text-decoration: underline; font-size: 13px;">🔗 회사 웹사이트 바로가기</a>` : ''}
         </div>
       </div>
     </div>
