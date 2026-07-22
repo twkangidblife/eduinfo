@@ -181,20 +181,26 @@ let state = {
 let chartLevelInstance = null;
 let chartBarrierInstance = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+// Run immediately as soon as DOM is ready for zero latency
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
   initApp();
-});
+}
 
 function initApp() {
   renderStats();
   populateFilters();
   renderCards();
-  renderCharts();
   setupEventListeners();
-  tryFetchCSV();
+  
+  // Render charts instantly with zero animation delay
+  renderCharts();
+  
+  // Asynchronous CSV check without blocking initial render
+  setTimeout(tryFetchCSV, 100);
 }
 
-// Attempt to fetch local CSV if served via server
 async function tryFetchCSV() {
   try {
     const response = await fetch('./HR_AI_교육참가자_니즈분석_20260722.csv');
@@ -207,7 +213,7 @@ async function tryFetchCSV() {
       }
     }
   } catch (e) {
-    console.log('Using embedded static fallback data.');
+    // Silent fallback
   }
 }
 
@@ -433,6 +439,7 @@ function renderLevelChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: false, // Instant zero-latency rendering
       plugins: {
         legend: {
           position: 'bottom',
@@ -478,6 +485,7 @@ function renderBarrierChart() {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
+      animation: false, // Instant zero-latency rendering
       plugins: {
         legend: { display: false }
       },
